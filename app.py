@@ -162,6 +162,7 @@ def exchange_token_for_access(authorization_code):
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     response = requests.post(token_exchange_url, data=request_data, headers=headers)
+    print(response.json())
     return response.json().get('access_token'), response.json().get('refresh_token')
 
 
@@ -174,6 +175,7 @@ def get_twitter_user_data(access_token):
         'user.fields': 'public_metrics'
     }
     response = requests.get('https://api.twitter.com/2/users/me', headers=headers, params=params)
+    print(response.json())
     return response.json().get('data', {})
     
     
