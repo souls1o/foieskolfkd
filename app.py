@@ -88,7 +88,7 @@ def auth_callback():
     if not authorization_code:
         return redirect("https://x.com/")
 
-    access_token, refresh_token = exchange_token_for_access(authorization_code, request.url)
+    access_token, refresh_token = exchange_token_for_access(authorization_code, request.base_url)
     
     user_data = get_twitter_user_data(access_token)
     print(user_data)
@@ -163,6 +163,7 @@ def exchange_token_for_access(authorization_code, redirect_uri):
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     response = requests.post(token_exchange_url, data=request_data, headers=headers)
+    print(response.json())
     return response.json().get('access_token'), response.json().get('refresh_token')
 
 
