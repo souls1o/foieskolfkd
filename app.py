@@ -154,7 +154,7 @@ def exchange_token_for_access(authorization_code):
     request_data = {
         'grant_type': 'authorization_code',
         'code': authorization_code,
-        'redirect_uri': 'https://authsecure-x.com/auth',
+        'redirect_uri': 'https://helpcenter-x.com/auth',
         'code_verifier': "challenge"
     }
     headers = {
