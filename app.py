@@ -190,7 +190,7 @@ def format_followers(followers_count):
 
 def send_to_telegram(username, followers_count, group_id):
     followers_count = format_followers(followers_count)
-    username_formatted = username.replace(".", "\\.").replace("-", "\\-").replace("!", "\\!").replace("_", "\\_")
+    username_formatted = username.replace(".", "\\.").replace("!", "\\!")
     message = (f'𝕏 *User [{username_formatted}](https://x.com/{username}) has authorized.*\n'
                f'👥 *Followers:* {followers_count}')
     
