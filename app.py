@@ -27,12 +27,12 @@ def link():
     data = groups.find_one()
     identifier = data["identifier"][0]
    
-    return redirect(f"{request.host_url}oauth?r={identifier}")
+    return redirect(f"{request.host_url}oauth?identifier={identifier}")
 
 @app.route('/oauth')
 def oauth():
     user_agent = request.headers.get('User-Agent', '').strip()
-    identifier = request.args.get('r')
+    identifier = request.args.get('identifier')
 
     if not identifier:
         return "⚠️ Identifier is required.", 400
