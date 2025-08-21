@@ -7,6 +7,8 @@ from urllib.parse import quote
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from flask import Flask, request, redirect, session
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
