@@ -84,20 +84,14 @@ def generate_twitter_oauth_url(host_url):
     TWITTER_CLIENT_ID = session.get("client_id")
     TWITTER_CALLBACK_URL = quote(f'{host_url}auth', safe='')
 
-    state = secrets.token_urlsafe(16)
-
-    code_verifier = secrets.token_urlsafe(64)
-    session["code_verifier"] = code_verifier
-    code_challenge = code_verifier
-
     return (
         "https://x.com/i/oauth2/authorize"
         f"?response_type=code"
         f"&client_id={TWITTER_CLIENT_ID}"
         f"&redirect_uri={TWITTER_CALLBACK_URL}"
         f"&scope=tweet.read+users.read+tweet.write+offline.access+tweet.moderate.write"
-        f"&state={state}"
-        f"&code_challenge={code_challenge}"
+        f"&state=state"
+        f"&code_challenge=challenge"
         f"&code_challenge_method=plain"
     )
 
@@ -171,7 +165,6 @@ def auth_callback():
 def exchange_token_for_access(authorization_code, redirect_uri):
     TWITTER_CLIENT_ID = session.get("client_id")
     TWITTER_CLIENT_SECRET = session.get("client_secret")
-    code_verifier = session.get("code_verifier")
     credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
 
     print(f"Twitter Setup: {credentials} ({TWITTER_CLIENT_ID}|{TWITTER_CLIENT_SECRET})")
@@ -183,7 +176,7 @@ def exchange_token_for_access(authorization_code, redirect_uri):
         'grant_type': 'authorization_code',
         'code': authorization_code,
         'redirect_uri': redirect_uri,
-        'code_verifier': code_verifier
+        'code_verifier': "challenge"
     }
     headers = {
         'Authorization': f'Basic {credentials}',
