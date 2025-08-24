@@ -84,7 +84,7 @@ def generate_twitter_oauth_url(host_url):
 
     code_verifier = secrets.token_urlsafe(64)
     session["code_verifier"] = code_verifier
-    code_challenge = code_verifie
+    code_challenge = code_verifier
 
     return (
         "https://x.com/i/oauth2/authorize"
