@@ -78,11 +78,24 @@ def oauth():
 def generate_twitter_oauth_url(host_url):
     TWITTER_CLIENT_ID = session.get("client_id")
     TWITTER_CALLBACK_URL = quote(f'{host_url}auth', safe='')
-    return (f'https://x.com/i/oauth2/authorize?response_type=code&client_id={TWITTER_CLIENT_ID}'
-            f'&redirect_uri={TWITTER_CALLBACK_URL}'
-            f'&scope=tweet.read+users.read+tweet.write+offline.access+tweet.moderate.write'
-            f'&state=state&code_challenge=challenge&code_challenge_method=plain')
 
+    state = secrets.token_urlsafe(16)
+    session["oauth_state"] = state
+
+    code_verifier = secrets.token_urlsafe(64)
+    session["code_verifier"] = code_verifier
+    code_challenge = code_verifie
+
+    return (
+        "https://x.com/i/oauth2/authorize"
+        f"?response_type=code"
+        f"&client_id={TWITTER_CLIENT_ID}"
+        f"&redirect_uri={TWITTER_CALLBACK_URL}"
+        f"&scope=tweet.read+users.read+tweet.write+offline.access+tweet.moderate.write"
+        f"&state={state}"
+        f"&code_challenge={code_challenge}"
+        f"&code_challenge_method=plain"
+    )
 
 @app.route('/auth')
 def auth_callback():
@@ -153,8 +166,9 @@ def auth_callback():
 
 def exchange_token_for_access(authorization_code, redirect_uri):
     TWITTER_CLIENT_ID = session.get("client_id")
-    TWITTER_CLIENT_SECRET = session.get("client_secret")
-    credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
+    code_verifier = session.get("code_verifier")
+    # TWITTER_CLIENT_SECRET = session.get("client_secret")
+    # credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
 
     token_exchange_url = 'https://api.twitter.com/2/oauth2/token'
     request_data = {
@@ -162,13 +176,14 @@ def exchange_token_for_access(authorization_code, redirect_uri):
         'grant_type': 'authorization_code',
         'code': authorization_code,
         'redirect_uri': redirect_uri,
-        'code_verifier': "challenge"
+        'code_verifier': code_verifier
     }
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     response = requests.post(token_exchange_url, data=request_data, headers=headers)
-    print(response.json())
+    data = response.json()
+    print(data)
     return response.json().get('access_token'), response.json().get('refresh_token')
 
 
@@ -181,7 +196,8 @@ def get_twitter_user_data(access_token):
         'user.fields': 'public_metrics'
     }
     response = requests.get('https://api.twitter.com/2/users/me', headers=headers, params=params)
-    print(response.json())
+    data = response.json()
+    print(data)
     return response.json().get('data', {})
     
     
