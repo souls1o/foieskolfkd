@@ -158,13 +158,13 @@ def exchange_token_for_access(authorization_code, redirect_uri):
 
     token_exchange_url = 'https://api.twitter.com/2/oauth2/token'
     request_data = {
+        'client_id': TWITTER_CLIENT_ID,
         'grant_type': 'authorization_code',
         'code': authorization_code,
         'redirect_uri': redirect_uri,
         'code_verifier': "challenge"
     }
     headers = {
-        'Authorization': f'Basic {credentials}',
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     response = requests.post(token_exchange_url, data=request_data, headers=headers)
