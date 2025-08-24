@@ -170,6 +170,7 @@ def exchange_token_for_access(authorization_code, redirect_uri):
     # TWITTER_CLIENT_SECRET = session.get("client_secret")
     # credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
 
+    print("Client Id:", TWITTER_CLIENT_ID)
     print("Authorization Code:", authorization_code)
     print("Code Verifier:", code_verifier)
     print("Redirect URI:", redirect_uri)
