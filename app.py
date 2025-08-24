@@ -85,7 +85,6 @@ def generate_twitter_oauth_url(host_url):
     TWITTER_CALLBACK_URL = quote(f'{host_url}auth', safe='')
 
     state = secrets.token_urlsafe(16)
-    session["oauth_state"] = state
 
     code_verifier = secrets.token_urlsafe(64)
     session["code_verifier"] = code_verifier
