@@ -170,6 +170,10 @@ def exchange_token_for_access(authorization_code, redirect_uri):
     code_verifier = session.get("code_verifier")
     credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
 
+    print(f"Twitter Setup: {credentials} ({TWITTER_CLIENT_ID}|{TWITTER_CLIENT_SECRET})")
+    print("Code verifier:", code_verifier)
+    print("Redirect URI:", redirect_uri)
+
     token_exchange_url = 'https://api.twitter.com/2/oauth2/token'
     request_data = {
         'grant_type': 'authorization_code',
