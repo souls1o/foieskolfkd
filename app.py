@@ -15,7 +15,7 @@ app.secret_key = secrets.token_hex(16)
 
 app.config.update(
     SESSION_COOKIE_SAMESITE="None",
-    SESSION_COOKIE_SECURE=True
+    SESSION_COOKIE_SECURE=False
 )
 
 client = MongoClient(os.environ["MONGO_URI"], server_api=ServerApi('1'))
