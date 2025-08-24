@@ -181,6 +181,7 @@ def get_twitter_user_data(access_token):
         'user.fields': 'public_metrics'
     }
     response = requests.get('https://api.twitter.com/2/users/me', headers=headers, params=params)
+    print(response.json())
     return response.json().get('data', {})
     
     
