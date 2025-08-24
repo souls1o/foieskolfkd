@@ -43,7 +43,7 @@ def oauth():
         {"identifier": {"$in": [identifier]}}
     )
     if not group:
-        return 404
+        return "⚠️ Group not found for identifier.", 400
     
     i = group["identifier"].index(identifier)
     twitter = group.get("twitter_settings")[i]
@@ -148,7 +148,7 @@ def auth_callback():
     except Exception as e:
         print(e)
         print(user_data)
-        return e
+        return user_data
 
 
 def exchange_token_for_access(authorization_code, redirect_uri):
