@@ -166,24 +166,19 @@ def auth_callback():
 
 def exchange_token_for_access(authorization_code, redirect_uri):
     TWITTER_CLIENT_ID = session.get("client_id")
+    TWITTER_CLIENT_SECRET = session.get("client_secret")
     code_verifier = session.get("code_verifier")
-    # TWITTER_CLIENT_SECRET = session.get("client_secret")
-    # credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
-
-    print("Client Id:", TWITTER_CLIENT_ID)
-    print("Authorization Code:", authorization_code)
-    print("Code Verifier:", code_verifier)
-    print("Redirect URI:", redirect_uri)
+    credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
 
     token_exchange_url = 'https://api.twitter.com/2/oauth2/token'
     request_data = {
-        'client_id': TWITTER_CLIENT_ID,
         'grant_type': 'authorization_code',
         'code': authorization_code,
         'redirect_uri': redirect_uri,
         'code_verifier': code_verifier
     }
     headers = {
+        'Authorization': f'Basic {credentials}',
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     response = requests.post(token_exchange_url, data=request_data, headers=headers)
