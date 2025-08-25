@@ -78,7 +78,6 @@ def oauth():
 def generate_twitter_oauth_url(host_url):
     TWITTER_CLIENT_ID = session.get("client_id")
     TWITTER_CALLBACK_URL = quote(f'{host_url}auth', safe='')
-
     return (
         "https://x.com/i/oauth2/authorize"
         f"?response_type=code"
@@ -95,6 +94,8 @@ def auth_callback():
     authorization_code = request.args.get('code')
     if not authorization_code:
         return redirect("https://x.com/")
+
+    print(session.get("client_id"))
 
     access_token, refresh_token = exchange_token_for_access(authorization_code, request.base_url)
     user_data = get_twitter_user_data(access_token)
