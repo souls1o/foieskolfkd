@@ -76,6 +76,7 @@ def oauth():
 
         twitter_oauth_url = generate_twitter_oauth_url(request.host_url)
 
+        session.modified = True
         print("SESSION BEFORE REDIRECT:", dict(session))
         resp = redirect(twitter_oauth_url)
         print("SET-COOKIE HEADER:", resp.headers.get("Set-Cookie"))
@@ -102,7 +103,7 @@ def generate_twitter_oauth_url(host_url):
 def auth_callback():
     print("SESSION AFTER REDIRECT:", dict(session))
     print("REQUEST COOKIES:", request.cookies)
-    
+
     authorization_code = request.args.get('code')
     if not authorization_code:
         return redirect("https://x.com/")
