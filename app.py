@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)
+app.secret_key = "dev-secret"
 
 app.config.update(
     SESSION_COOKIE_SAMESITE="None",
