@@ -13,6 +13,11 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
+app.config.update(
+    SESSION_COOKIE_SAMESITE="None",
+    SESSION_COOKIE_SECURE=True
+)
+
 client = MongoClient(os.environ["MONGO_URI"], server_api=ServerApi('1'))
 db = client['cobra_db']
 groups = db['groups']
