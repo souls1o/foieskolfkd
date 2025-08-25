@@ -6,7 +6,7 @@ from datetime import datetime
 from urllib.parse import quote
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-from flask import Flask, request, redirect, session
+from flask import Flask, request, redirect, session, current_app
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -79,6 +79,7 @@ def oauth():
         session.modified = True
         print("SESSION BEFORE REDIRECT:", dict(session))
         resp = redirect(twitter_oauth_url)
+        current_app.session_interface.save_session(current_app, session, resp)
         print("SET-COOKIE HEADER:", resp.headers.get("Set-Cookie"))
         return resp
     else:
